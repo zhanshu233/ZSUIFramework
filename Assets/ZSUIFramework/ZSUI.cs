@@ -5,57 +5,43 @@
     using System.Collections.Generic;
     using UnityEngine;
 	using UnityEngine.UI;
+	using UnityEngine.Events;
 	using UnityEngine.EventSystems;
 
 	public abstract class ZSUI : MonoBehaviour
     {
 		// 预设名称;
 		private string _UIName = string.Empty;
-		public  string mUIName 
-		{ get { return _UIName; } }
+		public  string mUIName { get { return _UIName; } }
 
 		// 预设数据;
 		private object _UIData = null;
-		public  object mUIData
-		{ get { return _UIData; } }
+		public  object mUIData { get { return _UIData; } }
 
 		// 预设实例;
 		private GameObject _UIPrefab = null;
-		public  GameObject mUIPrefab
-		{ get { return _UIPrefab; } }
+		public  GameObject mUIPrefab { get { return _UIPrefab; } }
 
-        /// <summary>
-        /// 初始化；
-        /// 只在实例化预设时执行一次；
-        /// </summary>
+		/// 初始化;(只在实例化预设时执行一次)
         public virtual void Init() { }
 
-        /// <summary>
-        /// 刷新；
+		/// 刷新;(每次显示预设时都执行一次)
         /// 每次显示预设时都执行一次；
-        /// </summary>
         public virtual void Refresh() { }
 
-        /// <summary>
-        /// 隐藏；
-        /// 推荐用于频繁使用的UI预设；
-        /// </summary>
+		/// 隐藏;(推荐用于频繁使用的UI预设)
         public virtual void Hide() 
 		{
 			_UIPrefab.SetActive( false );
 		}
 
-		/// <summary>
 		/// 显示隐藏状态的UI预设;
-		/// </summary>
 		public virtual void Show() 
 		{
 			_UIPrefab.SetActive( true );
 		}
 
-        /// <summary>
         /// 销毁；
-        /// </summary>
         public virtual void Destroy() 
 		{ 
 			if ( string.IsNullOrEmpty( _UIName ) ) { return; }
@@ -69,9 +55,7 @@
 
 
         //-------------------------------静态成员-------------------------------
-		/// <summary>
-		/// UI根节点;
-		/// </summary>
+		// UI根节点;
 		private static Transform _UIRoot = null;
 		public  static Transform mUIRoot
 		{
@@ -82,8 +66,7 @@
 			}
 		}
 
-		// 预设路径;
-		// UI组件要和对应的预设同名并放到指定路径下;
+		// 预设路径;(UI组件要和对应的预设同名并放到指定路径下)
 		private static string _UIPath = "Prefabs/{0}";
 		public  static string mUIPath
 		{ get { return _UIPath; } }
@@ -93,18 +76,7 @@
 		public  static Dictionary< string, ZSUI > mDictUIInstanceCache
 		{ get { return _DictUIInstanceCache; } }
 
-		/// <summary>
-		/// 添加按钮点击事件;
-		/// </summary>
-		public static void AddClickEvent( Button button, UnityEngine.Events.UnityAction call )
-		{
-			if ( null == button || null == call ) { return; }
-			button.onClick.AddListener( call );
-		}
-
-        /// <summary>
         /// 显示指定UI；
-        /// </summary>
         public static void Show< T >() where T : ZSUI, new()
         {
 			Type type = typeof ( T );
@@ -140,29 +112,32 @@
 			zsui.Init();
         }
 
-		/// <summary>
 		/// 初始化UI画布;
-		/// </summary>
 		private static void InitUICanvas()
 		{
 			GameObject UICanvas = new GameObject( "UICanvas" );
 			Canvas           cv = UICanvas.AddComponent< Canvas >();
 			CanvasScaler     cs = UICanvas.AddComponent< CanvasScaler >();
-			RectTransform    rt = UICanvas.AddComponent< RectTransform >();
 			GraphicRaycaster gr = UICanvas.AddComponent< GraphicRaycaster >();
 			UICanvas.layer = 5;
 			_UIRoot = UICanvas.transform;
 			_UIRoot.transform.parent = UICanvas.transform;
 			_UIRoot.transform.localPosition = Vector3.zero;
-			cv.renderMode = RenderMode.ScreenSpaceOverlay;
+			cv.renderMode = RenderMode.ScreenSpaceCamera;
+			// 屏幕适配设置;
+			cs.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
+			cs.referenceResolution = new Vector2( 960, 540 );
+			cs.screenMatchMode = CanvasScaler.ScreenMatchMode.MatchWidthOrHeight;
 
 			GameObject UICamera = new GameObject( "UICamera" );
 			Camera        cm = UICamera.AddComponent< Camera >();
 			GUILayer      gl = UICamera.AddComponent< GUILayer >();
 			AudioListener al = UICamera.AddComponent< AudioListener >();
 			UICamera.transform.parent = UICanvas.transform;
-			UICamera.transform.localPosition = Vector3.zero;
+			UICamera.transform.localPosition = new Vector3( 0, 0, -100 );
 			UICamera.layer = 5;
+			cm.orthographic = true;
+			cv.worldCamera = cm;
 
 			GameObject EventSystem = new GameObject( "EventSystem" );
 			EventSystem           es = EventSystem.AddComponent< EventSystem >();

@@ -8,6 +8,6 @@ public class GameManager : MonoBehaviour
     public void Start()
     {
         DontDestroyOnLoad( this.gameObject );
-		ZSUI.Show< MyButton >();
+		ZSUI.Show< MainStageGUI >();
     }
 }
