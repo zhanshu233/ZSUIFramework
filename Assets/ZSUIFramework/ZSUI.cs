@@ -30,19 +30,19 @@
         public virtual void Refresh() { }
 
 		/// 隐藏;(推荐用于频繁使用的UI预设)
-        public virtual void Hide() 
+		public virtual void Hide( GameObject go = null, int arg0 = 0, float arg1= 0, string arg2 = "" ) 
 		{
 			_UIPrefab.SetActive( false );
 		}
 
 		/// 显示隐藏状态的UI预设;
-		public virtual void Show() 
+		public virtual void Show( GameObject go = null, int arg0 = 0, float arg1= 0, string arg2 = "" ) 
 		{
 			_UIPrefab.SetActive( true );
 		}
 
-        /// 销毁；
-        public virtual void Destroy() 
+        /// 关闭；
+		public virtual void Close( GameObject go = null, int arg0 = 0, float arg1= 0, string arg2 = "" ) 
 		{ 
 			if ( string.IsNullOrEmpty( _UIName ) ) { return; }
 			if ( null == _DictUIInstanceCache ) { return; }
@@ -109,6 +109,7 @@
 			}
 			_DictUIInstanceCache.Add( name, zsui );
 			zsui._UIPrefab = go;
+			zsui._UIName = name;
 			zsui.Init();
         }
 
